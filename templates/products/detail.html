@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb eco-breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'products:list' %}">Catálogo</a></li>
+      <li class="breadcrumb-item active">{{ product.name }}</li>
+    </ol>
+  </nav>
+  <div class="row g-5">
+    <!-- Imágenes -->
+    <div class="col-lg-6">
+      <div class="eco-product-gallery">
+        {% with product.main_image as main_img %}
+        {% if main_img %}
+        <img src="{{ main_img.image.url }}" alt="{{ product.name }}"
+             class="img-fluid eco-gallery-main rounded-3">
+        {% else %}
+        <div class="eco-gallery-placeholder rounded-3">
+          <i class="bi bi-image eco-img-placeholder-icon"></i>
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% if product.images.count > 1 %}
+        <div class="eco-gallery-thumbs mt-3 d-flex gap-2">
+          {% for img in product.images.all %}
+          <img src="{{ img.image.url }}" alt="{{ img.alt_text }}"
+               class="eco-gallery-thumb rounded-2" style="width:70px;height:80px;object-fit:cover;cursor:pointer;">
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <!-- Info -->
+    <div class="col-lg-6">
+      <span class="eco-section-tag">{{ product.category.name }}</span>
+      <h1 class="eco-section-title mt-1">{{ product.name }}</h1>
+      <div class="eco-stars mb-2">
+        {% if avg_rating %}★★★★★ <small class="eco-text-muted">({{ product.reviews.count }} reseñas)</small>
+        {% else %}<small class="eco-text-muted">Sin reseñas aún</small>{% endif %}
+      </div>
+      <div class="d-flex align-items-baseline gap-3 my-3">
+        <span class="eco-price fs-3">${{ product.price|floatformat:0 }} MXN</span>
+        {% if product.compare_price %}
+        <span class="eco-price-old fs-5">${{ product.compare_price|floatformat:0 }}</span>
+        <span class="badge bg-danger">-{{ product.discount_percentage }}%</span>
+        {% endif %}
+      </div>
+      <p class="eco-body-text">{{ product.short_description|default:product.description }}</p>
+      <div class="eco-sustainability-info mb-4">
+        <span class="eco-sustainability-badge eco-badge-{{ product.sustainability_level }} position-static d-inline-flex">
+          <i class="bi bi-leaf me-1"></i>{{ product.get_sustainability_level_display }}
+        </span>
+        {% if product.materials %}
+        <small class="eco-text-muted ms-2">Materiales: {{ product.materials }}</small>
+        {% endif %}
+      </div>
+      {% if product.is_in_stock %}
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div class="eco-qty-control d-flex align-items-center border rounded-2">
+          <button class="eco-qty-btn btn btn-sm px-3" data-action="minus" data-product="{{ product.id }}">−</button>
+          <input type="number" value="1" min="1" max="{{ product.stock }}"
+                 class="form-control form-control-sm border-0 text-center" style="width:60px;" id="qty-input">
+          <button class="eco-qty-btn btn btn-sm px-3" data-action="plus" data-product="{{ product.id }}">+</button>
+        </div>
+        <small class="eco-text-muted">{{ product.stock }} disponibles</small>
+      </div>
+      <button class="btn eco-btn-hero-primary w-100 py-3 mb-3"
+              data-add-to-cart="{{ product.id }}" data-quantity="1" id="add-btn">
+        <i class="bi bi-bag-plus me-2"></i>Agregar al carrito
+      </button>
+      {% else %}
+      <div class="alert eco-alert alert-warning">Sin stock disponible temporalmente.</div>
+      {% endif %}
+      <div class="eco-product-meta mt-3">
+        <small class="eco-text-muted">SKU: {{ product.sku }}</small>
+      </div>
+    </div>
+  </div>
+  <!-- Reseñas -->
+  {% if product.reviews.exists %}
+  <div class="mt-5 pt-4 border-top">
+    <h3 class="eco-section-title mb-4">Reseñas de clientes</h3>
+    <div class="row g-4">
+      {% for review in product.reviews.all %}
+      <div class="col-md-6">
+        <div class="eco-testimonial-card">
+          <div class="eco-stars mb-2">{% for i in "12345"|make_list %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+          <strong>{{ review.title }}</strong>
+          <p class="eco-testimonial-text mt-1">"{{ review.body }}"</p>
+          <div class="eco-testimonial-author">
+            <div class="eco-author-avatar">{{ review.user.first_name.0 }}</div>
+            <div>
+              <strong>{{ review.user.get_full_name }}</strong>
+              {% if review.is_verified_purchase %}<span class="badge bg-success-subtle text-success ms-1" style="font-size:0.7rem;">Compra verificada</span>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+  <!-- Relacionados -->
+  {% if related_products %}
+  <div class="mt-5 pt-4 border-top">
+    <h3 class="eco-section-title mb-4">También te puede interesar</h3>
+    <div class="row g-3">
+      {% for p in related_products %}
+      <div class="col-6 col-md-3">{% include "partials/product_card.html" with product=p %}</div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

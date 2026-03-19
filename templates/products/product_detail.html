@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+{% block meta_description %}{{ product.short_description|default:product.description|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb breadcrumb-eco">
+      <li class="breadcrumb-item"><a href="{% url 'products:product_list' %}">Colección</a></li>
+      <li class="breadcrumb-item"><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li>
+      <li class="breadcrumb-item active">{{ product.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-5">
+
+    <!-- ── Galería de imágenes ────────────────────────────────────── -->
+    <div class="col-lg-6">
+      <!-- Imagen principal -->
+      <div id="mainImageWrapper" style="border-radius:var(--radius-lg);overflow:hidden;aspect-ratio:3/4;background:var(--eco-cream);">
+        {% if product.main_image %}
+          <img id="mainImage" src="{{ product.main_image.image.url }}"
+               alt="{{ product.name }}"
+               style="width:100%;height:100%;object-fit:cover;transition:opacity 0.3s;">
+        {% else %}
+          <div class="d-flex align-items-center justify-content-center h-100">
+            <i class="bi bi-image text-muted" style="font-size:4rem;"></i>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Miniaturas -->
+      {% if product.images.count > 1 %}
+        <div class="d-flex gap-2 mt-3 flex-wrap">
+          {% for img in product.images.all %}
+            <div onclick="switchImage('{{ img.image.url }}')"
+                 style="width:72px;height:90px;border-radius:var(--radius-sm);overflow:hidden;
+                        cursor:pointer;border:2px solid var(--eco-linen);transition:border-color 0.2s;"
+                 class="thumb-img {% if img.is_main %}border-forest{% endif %}">
+              <img src="{{ img.image.url }}" alt="{{ img.alt_text }}"
+                   style="width:100%;height:100%;object-fit:cover;">
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ── Información del producto ───────────────────────────────── -->
+    <div class="col-lg-6">
+
+      <!-- Categoría & badges -->
+      <div class="d-flex align-items-center gap-2 mb-2">
+        <span style="font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--eco-sage);font-weight:500;">
+          {{ product.category.name }}
+        </span>
+        {% if product.sustainability_label %}
+          <span class="badge-eco">{{ product.get_sustainability_label_display }}</span>
+        {% endif %}
+      </div>
+
+      <!-- Nombre -->
+      <h1 style="font-family:var(--font-display);font-size:clamp(1.75rem,3vw,2.5rem);font-weight:400;color:var(--eco-forest);margin-bottom:0.75rem;">
+        {{ product.name }}
+      </h1>
+
+      <!-- Rating -->
+      {% if avg_rating %}
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <div class="star-rating">
+            {% for i in "12345" %}
+              {% if forloop.counter <= avg_rating %}★{% else %}☆{% endif %}
+            {% endfor %}
+          </div>
+          <a href="#reviews" style="color:var(--eco-stone);font-size:0.875rem;text-decoration:none;">
+            {{ reviews.count }} reseña(s)
+          </a>
+        </div>
+      {% endif %}
+
+      <!-- Precio -->
+      <div class="mb-4" style="display:flex;align-items:baseline;gap:1rem;">
+        {% if product.compare_price %}
+          <span style="color:var(--eco-stone);font-size:1.25rem;text-decoration:line-through;">
+            ${{ product.compare_price }}
+          </span>
+          <span style="font-size:2rem;font-weight:600;color:var(--eco-terra);">
+            ${{ product.price }}
+          </span>
+          <span class="badge-discount">-{{ product.discount_percentage }}%</span>
+        {% else %}
+          <span style="font-size:2rem;font-weight:500;color:var(--eco-forest);">
+            ${{ product.price }}
+          </span>
+        {% endif %}
+      </div>
+
+      <!-- Descripción corta -->
+      {% if product.short_description %}
+        <p style="color:var(--eco-stone);line-height:1.75;margin-bottom:1.5rem;">
+          {{ product.short_description }}
+        </p>
+      {% endif %}
+
+      <!-- Stock -->
+      <div class="mb-4">
+        {% if product.is_in_stock %}
+          <span style="color:var(--eco-sage);font-size:0.875rem;font-weight:500;">
+            <i class="bi bi-check-circle me-1"></i>
+            En stock ({{ product.stock }} disponibles)
+          </span>
+        {% else %}
+          <span style="color:var(--eco-terra);font-size:0.875rem;font-weight:500;">
+            <i class="bi bi-x-circle me-1"></i>Agotado
+          </span>
+        {% endif %}
+      </div>
+
+      <!-- Cantidad + agregar al carrito -->
+      {% if product.is_in_stock %}
+        {% csrf_token %}
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <!-- Selector de cantidad -->
+          <div class="quantity-control">
+            <button class="qty-btn" type="button" onclick="changeQty(-1)">
+              <i class="bi bi-dash"></i>
+            </button>
+            <input id="qty-input" class="qty-input" type="number"
+                   value="1" min="1" max="{{ product.stock }}">
+            <button class="qty-btn" type="button" onclick="changeQty(1)">
+              <i class="bi bi-plus"></i>
+            </button>
+          </div>
+
+          <!-- Botón agregar -->
+          <button class="btn-eco-primary btn-add-to-cart flex-fill"
+                  data-product-id="{{ product.pk }}"
+                  style="font-size:0.875rem;">
+            <i class="bi bi-bag-plus me-2"></i>Agregar al carrito
+          </button>
+        </div>
+      {% else %}
+        <button class="btn-eco-outline w-100 mb-4" disabled>
+          Producto agotado
+        </button>
+      {% endif %}
+
+      <!-- Ir al carrito -->
+      <a href="{% url 'cart:cart_detail' %}" class="btn-eco-outline d-block text-center text-decoration-none mb-4"
+         style="font-size:0.8125rem;">
+        <i class="bi bi-bag me-2"></i>Ver carrito
+      </a>
+
+      <!-- Info de sostenibilidad -->
+      {% if product.materials or product.origin_country %}
+        <div class="p-3 rounded-eco bg-eco-cream border-eco border mb-4">
+          <div class="section-label mb-2">Detalles sostenibles</div>
+          {% if product.materials %}
+            <div class="d-flex align-items-start gap-2 mb-2">
+              <div class="sustainability-icon"><i class="bi bi-recycle"></i></div>
+              <div>
+                <small class="text-muted d-block" style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;">Materiales</small>
+                <span style="font-size:0.875rem;">{{ product.materials }}</span>
+              </div>
+            </div>
+          {% endif %}
+          {% if product.origin_country %}
+            <div class="d-flex align-items-start gap-2">
+              <div class="sustainability-icon"><i class="bi bi-geo-alt"></i></div>
+              <div>
+                <small class="text-muted d-block" style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;">Origen</small>
+                <span style="font-size:0.875rem;">{{ product.origin_country }}</span>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <!-- Garantías -->
+      <div class="d-flex gap-4 flex-wrap">
+        <div class="d-flex align-items-center gap-2" style="font-size:0.8rem;color:var(--eco-stone);">
+          <i class="bi bi-truck text-forest" style="font-size:1.1rem;color:var(--eco-sage);"></i>
+          Envío gratis +$999
+        </div>
+        <div class="d-flex align-items-center gap-2" style="font-size:0.8rem;color:var(--eco-stone);">
+          <i class="bi bi-arrow-return-left" style="font-size:1.1rem;color:var(--eco-sage);"></i>
+          30 días devolución
+        </div>
+        <div class="d-flex align-items-center gap-2" style="font-size:0.8rem;color:var(--eco-stone);">
+          <i class="bi bi-shield-check" style="font-size:1.1rem;color:var(--eco-sage);"></i>
+          Pago seguro
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Descripción completa ────────────────────────────────────── -->
+  <div class="row mt-5 pt-4 border-top border-eco">
+    <div class="col-lg-8">
+      <div class="section-label">Descripción</div>
+      <div style="line-height:1.85;color:var(--eco-stone);">
+        {{ product.description|linebreaks }}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Reseñas ─────────────────────────────────────────────────── -->
+  <div id="reviews" class="mt-5 pt-4 border-top border-eco">
+    <div class="section-label">Reseñas</div>
+    <h3 class="section-title mb-4">Lo que dicen nuestros clientes</h3>
+
+    {% if reviews %}
+      <div class="row g-3">
+        {% for review in reviews %}
+          <div class="col-md-6">
+            <div class="p-3 rounded-eco border-eco border bg-white">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <strong style="font-size:0.9rem;">{{ review.user.get_full_name|default:review.user.username }}</strong>
+                  {% if review.is_verified_purchase %}
+                    <span style="font-size:0.7rem;color:var(--eco-sage);margin-left:0.5rem;">✓ Compra verificada</span>
+                  {% endif %}
+                </div>
+                <div class="star-rating" style="font-size:0.8rem;">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              {% if review.title %}
+                <p style="font-weight:600;margin-bottom:0.35rem;font-size:0.9rem;">{{ review.title }}</p>
+              {% endif %}
+              <p style="font-size:0.875rem;color:var(--eco-stone);margin:0;">{{ review.body }}</p>
+              <small class="text-muted" style="font-size:0.75rem;">{{ review.created_at|date:"d M Y" }}</small>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-muted">Sé el primero en reseñar este producto.</p>
+    {% endif %}
+  </div>
+
+  <!-- ── Productos relacionados ──────────────────────────────────── -->
+  {% if related_products %}
+    <div class="mt-5 pt-4 border-top border-eco">
+      <div class="section-label">También te puede gustar</div>
+      <div class="row row-cols-2 row-cols-md-4 g-3">
+        {% for p in related_products %}
+          <div class="col">
+            <div class="product-card">
+              <a href="{{ p.get_absolute_url }}">
+                <div class="product-card-image" style="aspect-ratio:3/4;">
+                  {% if p.main_image %}
+                    <img src="{{ p.main_image.image.url }}" alt="{{ p.name }}" loading="lazy">
+                  {% endif %}
+                </div>
+              </a>
+              <div class="product-card-body">
+                <a href="{{ p.get_absolute_url }}" class="product-name" style="font-size:1rem;">{{ p.name }}</a>
+                <div class="product-price">${{ p.price }}</div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function changeQty(delta) {
+    const input = document.getElementById('qty-input');
+    const max = parseInt(input.max) || 99;
+    let val = parseInt(input.value) + delta;
+    input.value = Math.max(1, Math.min(val, max));
+  }
+
+  function switchImage(url) {
+    const img = document.getElementById('mainImage');
+    if (img) {
+      img.style.opacity = '0';
+      setTimeout(() => { img.src = url; img.style.opacity = '1'; }, 150);
+    }
+  }
+</script>
+{% endblock %}

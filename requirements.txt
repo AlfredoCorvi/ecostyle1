@@ -1,0 +1,26 @@
+# ── Core ──────────────────────────────────────────────
+Django==4.2.13
+python-decouple==3.8
+Pillow==10.3.0
+
+# ── Base de datos ──────────────────────────────────────
+psycopg2-binary==2.9.9
+
+# ── Autenticación ─────────────────────────────────────
+django-allauth==0.63.3
+
+# ── Pagos ─────────────────────────────────────────────
+mercadopago==2.2.1
+
+# ── Utilidades ────────────────────────────────────────
+django-crispy-forms==2.1
+crispy-bootstrap5==0.7
+django-storages==1.14.2
+whitenoise==6.6.0
+django-extensions==3.2.3
+
+# ── Seguridad ─────────────────────────────────────────
+django-csp==3.8
+
+# ── Dev tools ─────────────────────────────────────────
+django-debug-toolbar==4.3.0

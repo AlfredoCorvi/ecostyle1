@@ -1,0 +1,44 @@
+{% load static %}
+<div class="eco-product-card">
+  <div class="eco-product-img-wrapper">
+    {% with product.main_image as img %}
+      {% if img %}
+      <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" loading="lazy">
+      {% else %}
+      <div class="eco-product-img-placeholder">
+        <i class="bi bi-image eco-img-placeholder-icon"></i>
+      </div>
+      {% endif %}
+    {% endwith %}
+    <span class="eco-sustainability-badge eco-badge-{{ product.sustainability_level }}">
+      {{ product.get_sustainability_level_display }}
+    </span>
+    {% if product.discount_percentage > 0 %}
+    <span class="eco-discount-tag">-{{ product.discount_percentage }}%</span>
+    {% endif %}
+    <button class="eco-product-wishlist" aria-label="Lista de deseos">
+      <i class="bi bi-heart"></i>
+    </button>
+  </div>
+  <div class="eco-product-body">
+    <p class="eco-product-category">{{ product.category.name }}</p>
+    <h6 class="eco-product-name">
+      <a href="{% url 'products:detail' product.slug %}" class="text-decoration-none" style="color:inherit;">
+        {{ product.name }}
+      </a>
+    </h6>
+    <div class="eco-product-price-row">
+      <span class="eco-price">${{ product.price|floatformat:0 }} MXN</span>
+      {% if product.compare_price %}
+      <span class="eco-price-old">${{ product.compare_price|floatformat:0 }}</span>
+      {% endif %}
+    </div>
+  </div>
+  {% if product.is_in_stock %}
+  <button class="eco-product-add-btn" data-add-to-cart="{{ product.id }}" data-quantity="1">
+    <i class="bi bi-bag-plus me-1"></i> Agregar al carrito
+  </button>
+  {% else %}
+  <div class="eco-product-add-btn" style="background:#ccc;cursor:not-allowed;display:block;text-align:center;">Agotado</div>
+  {% endif %}
+</div>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Crear cuenta{% endblock %}
+{% block content %}
+<div class="container py-5 d-flex justify-content-center">
+  <div class="eco-auth-card">
+    <div class="text-center mb-4">
+      <div class="eco-logo fs-3 mb-2"><span class="eco-logo-leaf">◆</span>EcoStyle</div>
+      <h2 class="eco-section-title" style="font-size:1.6rem;">Crear cuenta</h2>
+      <p class="eco-text-muted">Únete al movimiento de moda consciente</p>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button type="submit" class="btn eco-btn-hero-primary w-100 py-3 mt-2">
+        Crear mi cuenta
+      </button>
+    </form>
+    <p class="text-center mt-3 eco-text-muted small">
+      ¿Ya tienes cuenta? <a href="{% url 'account_login' %}" class="eco-link">Inicia sesión</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

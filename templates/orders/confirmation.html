@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Confirmación - {{ order.order_number }}{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:700px;">
+  <div class="text-center mb-5">
+    <i class="bi bi-bag-check text-success" style="font-size:3rem;"></i>
+    <h1 class="eco-section-title mt-3">¡Pedido recibido!</h1>
+    <p class="eco-text-muted">Orden: <strong>{{ order.order_number }}</strong></p>
+  </div>
+  <div class="p-4 rounded-3 border mb-4">
+    <h5 class="fw-500 mb-3">Resumen del pedido</h5>
+    {% for item in order.items.all %}
+    <div class="d-flex justify-content-between mb-2">
+      <span>{{ item.product_name }} x{{ item.quantity }}</span>
+      <span>${{ item.subtotal|floatformat:0 }} MXN</span>
+    </div>
+    {% endfor %}
+    <hr>
+    <div class="d-flex justify-content-between fw-500">
+      <span>Total</span><span>${{ order.total|floatformat:0 }} MXN</span>
+    </div>
+  </div>
+  <div class="p-4 rounded-3 border">
+    <h5 class="fw-500 mb-3">Enviar a</h5>
+    <p class="mb-1">{{ order.shipping_name }}</p>
+    <p class="mb-1 eco-text-muted">{{ order.shipping_address }}, {{ order.shipping_city }}, {{ order.shipping_state }}</p>
+    <p class="eco-text-muted">{{ order.shipping_phone }}</p>
+  </div>
+  <div class="text-center mt-4">
+    <a href="{% url 'home' %}" class="btn eco-btn-primary">Volver al inicio</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Pago en proceso{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+  <i class="bi bi-hourglass-split text-warning" style="font-size:4rem;"></i>
+  <h1 class="eco-section-title mt-4">Pago en proceso</h1>
+  <p class="eco-body-text mx-auto mt-3" style="max-width:480px;">Tu pago está siendo revisado. Te notificaremos por correo cuando sea confirmado.</p>
+  <a href="{% url 'orders:history' %}" class="btn eco-btn-primary mt-3">Ver mis pedidos</a>
+</div>
+{% endblock %}

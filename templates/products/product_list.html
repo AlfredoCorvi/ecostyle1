@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Colección{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero / Banner colección ────────────────────────────────────── -->
+{% if not request.GET.q and not request.GET.category %}
+<section class="hero-section">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 fade-in-up">
+        <p class="hero-eyebrow">Nueva temporada · 2025</p>
+        <h1 class="hero-headline">
+          Moda que<br><em>respira</em><br>el planeta.
+        </h1>
+        <p class="hero-body">
+          Cada prenda en EcoStyle está hecha con materiales sostenibles,
+          procesos éticos y diseño que trasciende las temporadas.
+        </p>
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="#coleccion" class="btn-eco-primary text-decoration-none">
+            Ver colección
+          </a>
+          <a href="?label=organic" class="btn-eco-outline text-decoration-none">
+            Solo orgánico
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-6 fade-in-up delay-2">
+        <div class="hero-image-wrapper">
+          <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=800&q=80"
+               alt="Moda sostenible EcoStyle">
+          <div class="hero-badge">
+            <span class="badge-number">100%</span>
+            <span class="badge-text">Materiales<br>sostenibles</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ── Sección principal con filtros + grid ───────────────────────── -->
+<section id="coleccion" class="py-5">
+  <div class="container">
+
+    {% if request.GET.q %}
+    <div class="mb-4">
+      <h2 class="section-title">
+        Resultados para <em>"{{ request.GET.q }}"</em>
+      </h2>
+      <p class="text-muted small">{{ page_obj.paginator.count }} producto(s) encontrado(s)</p>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+
+      <!-- ── Sidebar de filtros ──────────────────────────────────── -->
+      <div class="col-lg-3 d-none d-lg-block">
+        <div class="filter-sidebar">
+
+          <!-- Categorías -->
+          <div class="filter-title">Categorías</div>
+          <div class="mb-4">
+            <a href="{% url 'products:product_list' %}"
+               class="filter-chip {% if not request.GET.category %}active{% endif %}">
+              Todo
+            </a>
+            {% for cat in categories %}
+              <a href="?category={{ cat.slug }}"
+                 class="filter-chip {% if request.GET.category == cat.slug %}active{% endif %}">
+                {{ cat.name }}
+              </a>
+            {% endfor %}
+          </div>
+
+          <!-- Etiquetas sostenibilidad -->
+          <div class="filter-title">Sostenibilidad</div>
+          <div class="mb-4">
+            {% for value, label in sustainability_labels %}
+              <a href="?label={{ value }}"
+                 class="filter-chip {% if request.GET.label == value %}active{% endif %}">
+                {{ label }}
+              </a>
+            {% endfor %}
+          </div>
+
+          <!-- Rango de precio -->
+          <div class="filter-title">Precio</div>
+          <form method="get" id="price-filter-form">
+            {% if request.GET.category %}<input type="hidden" name="category" value="{{ request.GET.category }}">{% endif %}
+            {% if request.GET.q %}<input type="hidden" name="q" value="{{ request.GET.q }}">{% endif %}
+            <div class="d-flex gap-2 align-items-center mb-2">
+              <input type="number" name="min_price" class="form-control form-control-sm"
+                     placeholder="Mín $" value="{{ request.GET.min_price|default:'' }}" min="0">
+              <span class="text-muted">–</span>
+              <input type="number" name="max_price" class="form-control form-control-sm"
+                     placeholder="Máx $" value="{{ request.GET.max_price|default:'' }}" min="0">
+            </div>
+            <button type="submit" class="btn-eco-outline w-100" style="padding:0.5rem;">
+              Aplicar
+            </button>
+          </form>
+
+          <!-- Ordenamiento -->
+          <div class="filter-title mt-4">Ordenar por</div>
+          <select class="form-select form-select-sm border-eco"
+                  onchange="window.location.href='?sort='+this.value+'&{{ filter_params }}'">
+            <option value="newest"   {% if request.GET.sort == 'newest'    %}selected{% endif %}>Más recientes</option>
+            <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Menor precio</option>
+            <option value="price_desc"{% if request.GET.sort == 'price_desc'%}selected{% endif %}>Mayor precio</option>
+            <option value="name"     {% if request.GET.sort == 'name'      %}selected{% endif %}>Nombre A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ── Grid de productos ───────────────────────────────────── -->
+      <div class="col-lg-9">
+
+        <!-- Resultados vacíos -->
+        {% if not products %}
+          <div class="text-center py-5">
+            <i class="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+            <h3 class="section-title">Sin resultados</h3>
+            <p class="text-muted">Intenta con otros filtros o busca algo diferente.</p>
+            <a href="{% url 'products:product_list' %}" class="btn-eco-primary text-decoration-none mt-2">
+              Ver toda la colección
+            </a>
+          </div>
+        {% else %}
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-3 g-4">
+            {% for product in products %}
+              <div class="col fade-in-up" style="animation-delay: {{ forloop.counter0|floatformat:1 }}00ms">
+                <div class="product-card h-100">
+
+                  <!-- Imagen -->
+                  <a href="{{ product.get_absolute_url }}" class="d-block">
+                    <div class="product-card-image">
+                      {% if product.main_image %}
+                        <img src="{{ product.main_image.image.url }}"
+                             alt="{{ product.name }}" loading="lazy">
+                      {% else %}
+                        <div class="d-flex align-items-center justify-content-center h-100 bg-eco-cream">
+                          <i class="bi bi-image fs-1 text-muted"></i>
+                        </div>
+                      {% endif %}
+
+                      <!-- Badges -->
+                      <div class="product-badge d-flex flex-column gap-1">
+                        {% if product.sustainability_label %}
+                          <span class="badge-eco">{{ product.get_sustainability_label_display }}</span>
+                        {% endif %}
+                        {% if product.discount_percentage %}
+                          <span class="badge-discount">-{{ product.discount_percentage }}%</span>
+                        {% endif %}
+                      </div>
+
+                      <!-- Sin stock -->
+                      {% if not product.is_in_stock %}
+                        <div class="out-of-stock-overlay">Agotado</div>
+                      {% endif %}
+
+                      <!-- Overlay hover -->
+                      <div class="product-card-overlay">
+                        {% csrf_token %}
+                        {% if product.is_in_stock %}
+                          <button class="btn-eco-primary btn-add-to-cart flex-fill"
+                                  data-product-id="{{ product.pk }}"
+                                  style="padding:0.5rem;font-size:0.8rem;">
+                            <i class="bi bi-bag-plus me-1"></i>Añadir
+                          </button>
+                        {% endif %}
+                        <a href="{{ product.get_absolute_url }}"
+                           class="btn-eco-outline text-decoration-none"
+                           style="padding:0.5rem 0.75rem;border-color:white;color:white;">
+                          <i class="bi bi-eye"></i>
+                        </a>
+                      </div>
+                    </div>
+                  </a>
+
+                  <!-- Info -->
+                  <div class="product-card-body">
+                    <div class="product-category-label">{{ product.category.name }}</div>
+                    <a href="{{ product.get_absolute_url }}" class="product-name">
+                      {{ product.name }}
+                    </a>
+                    <div class="product-price">
+                      {% if product.compare_price %}
+                        <span class="compare-price">${{ product.compare_price }}</span>
+                      {% endif %}
+                      ${{ product.price }}
+                    </div>
+                    {% if product.average_rating %}
+                      <div class="star-rating mt-1">
+                        {% for i in "12345" %}
+                          {% if forloop.counter <= product.average_rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                        <span class="text-muted ms-1" style="font-size:0.75rem;">
+                          ({{ product.reviews.count }})
+                        </span>
+                      </div>
+                    {% endif %}
+                  </div>
+
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Paginación -->
+          {% if page_obj.has_other_pages %}
+            <nav class="mt-5 d-flex justify-content-center" aria-label="Paginación">
+              <ul class="pagination gap-1">
+                {% if page_obj.has_previous %}
+                  <li class="page-item">
+                    <a class="page-link border-eco" href="?page={{ page_obj.previous_page_number }}&{{ filter_params }}">
+                      <i class="bi bi-chevron-left"></i>
+                    </a>
+                  </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                  <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+                    <a class="page-link border-eco" href="?page={{ num }}&{{ filter_params }}">{{ num }}</a>
+                  </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                  <li class="page-item">
+                    <a class="page-link border-eco" href="?page={{ page_obj.next_page_number }}&{{ filter_params }}">
+                      <i class="bi bi-chevron-right"></i>
+                    </a>
+                  </li>
+                {% endif %}
+              </ul>
+            </nav>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

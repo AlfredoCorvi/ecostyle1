@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+{% load static %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+
+<!-- ══ HERO ════════════════════════════════════════════════════════════════ -->
+<section class="eco-hero">
+  <div class="eco-hero-bg"></div>
+  <div class="container position-relative">
+    <div class="row align-items-center min-vh-85">
+      <div class="col-lg-6">
+        <div class="eco-hero-badge mb-4">
+          <span class="eco-leaf-icon">◆</span>
+          Moda 100% Sostenible
+        </div>
+        <h1 class="eco-hero-title">
+          Viste el cambio<br>
+          <em>que quieres</em><br>
+          ver en el mundo
+        </h1>
+        <p class="eco-hero-subtitle">
+          Ropa consciente, hecha con materiales orgánicos y procesos
+          justos que cuidan a las personas y al planeta.
+        </p>
+        <div class="d-flex gap-3 flex-wrap mt-4">
+          <a href="{% url 'products:list' %}" class="btn eco-btn-hero-primary">
+            Explorar colección <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+          <a href="#nuestra-historia" class="btn eco-btn-hero-outline">
+            Nuestra historia
+          </a>
+        </div>
+        <div class="eco-hero-stats mt-5">
+          <div class="eco-stat">
+            <span class="eco-stat-number">500+</span>
+            <span class="eco-stat-label">Prendas</span>
+          </div>
+          <div class="eco-stat-divider"></div>
+          <div class="eco-stat">
+            <span class="eco-stat-number">12K+</span>
+            <span class="eco-stat-label">Clientes</span>
+          </div>
+          <div class="eco-stat-divider"></div>
+          <div class="eco-stat">
+            <span class="eco-stat-number">100%</span>
+            <span class="eco-stat-label">Orgánico</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-flex justify-content-center">
+        <div class="eco-hero-visual">
+          <div class="eco-hero-card eco-hero-card-1">
+            <div class="eco-hero-card-inner">
+              <div class="eco-product-placeholder">
+                <i class="bi bi-bag-heart eco-placeholder-icon"></i>
+                <span>Nueva Colección</span>
+              </div>
+            </div>
+          </div>
+          <div class="eco-hero-card eco-hero-card-2">
+            <div class="eco-hero-badge-float">
+              <i class="bi bi-leaf"></i> Zero Waste
+            </div>
+          </div>
+          <div class="eco-hero-card eco-hero-card-3">
+            <div class="eco-hero-badge-float eco-badge-eco">
+              <i class="bi bi-recycle"></i> Reciclado
+            </div>
+          </div>
+          <!-- Decorative circles -->
+          <div class="eco-deco-circle eco-deco-1"></div>
+          <div class="eco-deco-circle eco-deco-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Scroll indicator -->
+  <div class="eco-scroll-indicator">
+    <div class="eco-scroll-dot"></div>
+  </div>
+</section>
+
+<!-- ══ BANNER DE VALORES ════════════════════════════════════════════════════ -->
+<section class="eco-values-banner">
+  <div class="container">
+    <div class="row g-0">
+      <div class="col-6 col-md-3">
+        <div class="eco-value-item">
+          <i class="bi bi-truck eco-value-icon"></i>
+          <span>Envío gratis +$800 MXN</span>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="eco-value-item">
+          <i class="bi bi-arrow-repeat eco-value-icon"></i>
+          <span>Devoluciones 30 días</span>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="eco-value-item">
+          <i class="bi bi-shield-check eco-value-icon"></i>
+          <span>Pago seguro SSL</span>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="eco-value-item">
+          <i class="bi bi-leaf eco-value-icon"></i>
+          <span>Huella de carbono cero</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CATEGORÍAS ══════════════════════════════════════════════════════════ -->
+<section class="eco-section py-5" id="categorias">
+  <div class="container">
+    <div class="eco-section-header text-center mb-5">
+      <span class="eco-section-tag">Descubre</span>
+      <h2 class="eco-section-title">Nuestra colección</h2>
+      <p class="eco-section-subtitle">Categorías cuidadosamente seleccionadas para un guardarropa consciente</p>
+    </div>
+    <div class="row g-3">
+      {% if categories %}
+        {% for cat in categories %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <a href="{% url 'products:category' cat.slug %}" class="eco-category-card">
+            <div class="eco-category-img">
+              {% if cat.image %}
+              <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="img-fluid">
+              {% else %}
+              <div class="eco-category-placeholder">
+                <i class="bi bi-handbag"></i>
+              </div>
+              {% endif %}
+            </div>
+            <div class="eco-category-info">
+              <span class="eco-category-name">{{ cat.name }}</span>
+              <span class="eco-category-arrow"><i class="bi bi-arrow-right"></i></span>
+            </div>
+          </a>
+        </div>
+        {% endfor %}
+      {% else %}
+      <!-- Placeholder cuando no hay categorias en BD -->
+      {% for cat_name in "Camisetas,Pantalones,Vestidos,Accesorios,Calzado,Abrigos"|split:"," %}
+      <div class="col-6 col-md-4 col-lg-2">
+        <a href="{% url 'products:list' %}" class="eco-category-card">
+          <div class="eco-category-img">
+            <div class="eco-category-placeholder">
+              <i class="bi bi-handbag"></i>
+            </div>
+          </div>
+          <div class="eco-category-info">
+            <span class="eco-category-name">{{ cat_name }}</span>
+            <span class="eco-category-arrow"><i class="bi bi-arrow-right"></i></span>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRODUCTOS DESTACADOS ════════════════════════════════════════════════ -->
+<section class="eco-section py-5 eco-bg-warm" id="destacados">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-5">
+      <div>
+        <span class="eco-section-tag">Lo más popular</span>
+        <h2 class="eco-section-title mb-0">Productos destacados</h2>
+      </div>
+      <a href="{% url 'products:list' %}" class="eco-link-arrow d-none d-md-flex">
+        Ver todo <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+    <div class="row g-4">
+      {% if featured_products %}
+        {% for product in featured_products %}
+        <div class="col-6 col-md-4 col-lg-3">
+          {% include "partials/product_card.html" with product=product %}
+        </div>
+        {% endfor %}
+      {% else %}
+      <!-- Productos placeholder -->
+      {% for i in "1234"|make_list %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="eco-product-card">
+          <div class="eco-product-img-wrapper">
+            <div class="eco-product-img-placeholder">
+              <i class="bi bi-image eco-img-placeholder-icon"></i>
+            </div>
+            <span class="eco-sustainability-badge eco-badge-organic">Orgánico</span>
+          </div>
+          <div class="eco-product-body">
+            <p class="eco-product-category">Camisetas</p>
+            <h6 class="eco-product-name">Prenda Sostenible {{ i }}</h6>
+            <div class="eco-product-price-row">
+              <span class="eco-price">$450 MXN</span>
+              <span class="eco-price-old">$600 MXN</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+    <div class="text-center mt-4 d-md-none">
+      <a href="{% url 'products:list' %}" class="btn eco-btn-outline">Ver todos los productos</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MISIÓN / SUSTENTABILIDAD ════════════════════════════════════════════ -->
+<section class="eco-section py-5" id="nuestra-historia">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5">
+        <div class="eco-mission-visual">
+          <div class="eco-mission-card-big">
+            <div class="eco-mission-icon-wrap">
+              <i class="bi bi-globe-americas eco-mission-big-icon"></i>
+            </div>
+            <p class="eco-mission-quote">"La moda más sostenible es la que ya tienes. La segunda, es la que hacemos nosotros."</p>
+          </div>
+          <div class="eco-mission-stat-card">
+            <span class="eco-mission-stat-num">2.5T</span>
+            <span class="eco-mission-stat-label">Litros de agua ahorrados</span>
+          </div>
+          <div class="eco-mission-stat-card eco-mission-stat-card-2">
+            <span class="eco-mission-stat-num">0</span>
+            <span class="eco-mission-stat-label">Emisiones netas CO₂</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <span class="eco-section-tag">Nuestro propósito</span>
+        <h2 class="eco-section-title">Moda que respeta<br>a las personas y al planeta</h2>
+        <p class="eco-body-text mt-3">
+          En EcoStyle creemos que la industria de la moda puede transformarse.
+          Por eso seleccionamos únicamente marcas y productores que comparten
+          nuestros valores: materiales certificados, procesos transparentes
+          y comercio justo.
+        </p>
+        <div class="row g-3 mt-3">
+          <div class="col-sm-6">
+            <div class="eco-pillar-card">
+              <div class="eco-pillar-icon"><i class="bi bi-flower1"></i></div>
+              <h6 class="eco-pillar-title">Materiales orgánicos</h6>
+              <p class="eco-pillar-text">Algodón GOTS, lino, bambú y fibras recicladas certificadas.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="eco-pillar-card">
+              <div class="eco-pillar-icon"><i class="bi bi-people"></i></div>
+              <h6 class="eco-pillar-title">Comercio justo</h6>
+              <p class="eco-pillar-text">Producción ética con salarios dignos para todos los trabajadores.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="eco-pillar-card">
+              <div class="eco-pillar-icon"><i class="bi bi-recycle"></i></div>
+              <h6 class="eco-pillar-title">Economía circular</h6>
+              <p class="eco-pillar-text">Empaques 100% reciclables y programa de devolución de prendas.</p>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div class="eco-pillar-card">
+              <div class="eco-pillar-icon"><i class="bi bi-transparency"></i></div>
+              <h6 class="eco-pillar-title">Transparencia total</h6>
+              <p class="eco-pillar-text">Trazabilidad completa de cada prenda: de la fibra al armario.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TESTIMONIOS ══════════════════════════════════════════════════════════ -->
+<section class="eco-section py-5 eco-bg-warm">
+  <div class="container">
+    <div class="eco-section-header text-center mb-5">
+      <span class="eco-section-tag">Comunidad</span>
+      <h2 class="eco-section-title">Lo que dicen nuestros clientes</h2>
+    </div>
+    <div class="row g-4">
+      {% for review in testimonials %}
+      <div class="col-md-4">
+        <div class="eco-testimonial-card">
+          <div class="eco-stars mb-3">
+            {% for i in "12345"|make_list %}★{% endfor %}
+          </div>
+          <p class="eco-testimonial-text">"{{ review.body }}"</p>
+          <div class="eco-testimonial-author">
+            <div class="eco-author-avatar">{{ review.user.first_name.0 }}{{ review.user.last_name.0 }}</div>
+            <div>
+              <strong>{{ review.user.get_full_name }}</strong>
+              <small class="d-block eco-text-muted">Compra verificada</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <!-- Testimonios placeholder -->
+      {% for t in "123"|make_list %}
+      <div class="col-md-4">
+        <div class="eco-testimonial-card">
+          <div class="eco-stars mb-3">★★★★★</div>
+          {% if t == "1" %}
+          <p class="eco-testimonial-text">"La calidad es increíble. Se nota que cada prenda fue hecha con cuidado y respeto al medio ambiente. No volvería a comprar ropa de otra manera."</p>
+          <div class="eco-testimonial-author">
+            <div class="eco-author-avatar">SM</div>
+            <div><strong>Sofía Martínez</strong><small class="d-block eco-text-muted">Ciudad de México</small></div>
+          </div>
+          {% elif t == "2" %}
+          <p class="eco-testimonial-text">"Los envíos son rapidísimos y el empaque sin plástico es un detalle que me encanta. Ya hice mi tercera compra y siempre quedo feliz."</p>
+          <div class="eco-testimonial-author">
+            <div class="eco-author-avatar">AR</div>
+            <div><strong>Andrés Ramírez</strong><small class="d-block eco-text-muted">Guadalajara</small></div>
+          </div>
+          {% else %}
+          <p class="eco-testimonial-text">"Me encanta saber que mi ropa fue hecha de forma justa. La tela del vestido que compré es suavísima y el color no ha desteñido nada."</p>
+          <div class="eco-testimonial-author">
+            <div class="eco-author-avatar">VL</div>
+            <div><strong>Valentina López</strong><small class="d-block eco-text-muted">Monterrey</small></div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA NEWSLETTER ══════════════════════════════════════════════════════ -->
+<section class="eco-newsletter py-5">
+  <div class="container">
+    <div class="eco-newsletter-inner text-center">
+      <span class="eco-section-tag">Comunidad EcoStyle</span>
+      <h2 class="eco-section-title text-white mt-2">Únete al movimiento verde</h2>
+      <p class="eco-newsletter-subtitle">Recibe en tu correo novedades, guías de cuidado de telas y descuentos exclusivos para miembros.</p>
+      <form class="eco-newsletter-form mx-auto mt-4" onsubmit="return false;">
+        <div class="input-group eco-newsletter-input-group">
+          <input type="email" class="form-control eco-newsletter-input" placeholder="tu@correo.com">
+          <button class="btn eco-newsletter-btn" type="submit">
+            Suscribirme <i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+        <small class="eco-newsletter-note mt-2 d-block">Sin spam. Puedes darte de baja cuando quieras.</small>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Pago fallido{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+  <i class="bi bi-x-circle-fill text-danger" style="font-size:4rem;"></i>
+  <h1 class="eco-section-title mt-4">Pago no procesado</h1>
+  <p class="eco-body-text mx-auto mt-3" style="max-width:480px;">Hubo un problema con tu pago. Por favor intenta nuevamente o usa otro método de pago.</p>
+  <a href="{% url 'cart:detail' %}" class="btn eco-btn-primary mt-3">Volver al carrito</a>
+</div>
+{% endblock %}

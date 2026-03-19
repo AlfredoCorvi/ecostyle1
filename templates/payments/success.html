@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Pago exitoso{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+  <i class="bi bi-check-circle-fill text-success" style="font-size:4rem;"></i>
+  <h1 class="eco-section-title mt-4">¡Pago exitoso!</h1>
+  <p class="eco-body-text mx-auto mt-3" style="max-width:480px;">Tu pedido ha sido confirmado. Recibirás un correo con los detalles y el seguimiento de tu envío.</p>
+  <a href="{% url 'orders:history' %}" class="btn eco-btn-primary me-3 mt-3">Ver mis pedidos</a>
+  <a href="{% url 'products:list' %}" class="btn eco-btn-outline mt-3">Seguir comprando</a>
+</div>
+{% endblock %}

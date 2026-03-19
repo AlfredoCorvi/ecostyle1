@@ -1,0 +1,14 @@
+Django==4.2.16
+psycopg2-binary==2.9.9
+Pillow==10.4.0
+django-allauth==0.63.6
+django-environ==0.11.2
+whitenoise==6.7.0
+mercadopago==2.2.2
+django-crispy-forms==2.3
+crispy-bootstrap5==2024.2
+django-storages==1.14.4
+boto3==1.35.0
+celery==5.4.0
+redis==5.0.8
+django-redis==5.4.0

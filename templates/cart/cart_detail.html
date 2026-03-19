@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}Mi carrito{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="section-label">Tienda</div>
+  <h1 class="section-title mb-5">Mi carrito</h1>
+
+  {% if cart.is_empty %}
+    <!-- Carrito vacío -->
+    <div class="text-center py-5">
+      <i class="bi bi-bag" style="font-size:4rem;color:var(--eco-mint);"></i>
+      <h3 class="mt-3 mb-2" style="font-family:var(--font-display);">Tu carrito está vacío</h3>
+      <p class="text-muted mb-4">Descubre nuestra colección de moda sostenible.</p>
+      <a href="{% url 'products:product_list' %}" class="btn-eco-primary text-decoration-none">
+        Explorar colección
+      </a>
+    </div>
+
+  {% else %}
+    {% csrf_token %}
+    <div class="row g-5">
+
+      <!-- ── Items del carrito ──────────────────────────────────── -->
+      <div class="col-lg-8">
+        <!-- Banner envío gratis -->
+        {% if not free_shipping %}
+          <div class="alert-eco-success p-3 rounded-eco mb-4 d-flex align-items-center gap-2"
+               style="font-size:0.875rem;">
+            <i class="bi bi-truck fs-5"></i>
+            <span>
+              ¡Solo te faltan <strong>${{ free_shipping_remaining|floatformat:2 }}</strong>
+              para obtener envío gratis!
+            </span>
+          </div>
+        {% else %}
+          <div class="alert-eco-success p-3 rounded-eco mb-4 d-flex align-items-center gap-2"
+               style="font-size:0.875rem;">
+            <i class="bi bi-truck fs-5"></i>
+            <span>🎉 ¡Tienes <strong>envío gratis</strong> en este pedido!</span>
+          </div>
+        {% endif %}
+
+        <!-- Lista de ítems -->
+        <div class="cart-items-container">
+          {% for item in items %}
+            <div class="cart-item-row d-flex gap-3" data-product-id="{{ item.product.pk }}">
+              <!-- Imagen -->
+              <a href="{{ item.product.get_absolute_url }}" class="flex-shrink-0">
+                {% if item.product.main_image %}
+                  <img class="cart-item-img"
+                       src="{{ item.product.main_image.image.url }}"
+                       alt="{{ item.product.name }}">
+                {% else %}
+                  <div class="cart-item-img d-flex align-items-center justify-content-center bg-eco-cream">
+                    <i class="bi bi-image text-muted"></i>
+                  </div>
+                {% endif %}
+              </a>
+
+              <!-- Info -->
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <span style="font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--eco-sage);">
+                      {{ item.product.category.name }}
+                    </span>
+                    <a href="{{ item.product.get_absolute_url }}"
+                       style="font-family:var(--font-display);font-size:1.125rem;color:var(--eco-forest);text-decoration:none;display:block;">
+                      {{ item.product.name }}
+                    </a>
+                    {% if item.product.sustainability_label %}
+                      <span class="badge-eco" style="font-size:0.65rem;">
+                        {{ item.product.get_sustainability_label_display }}
+                      </span>
+                    {% endif %}
+                  </div>
+                  <!-- Precio unitario -->
+                  <div style="font-weight:500;color:var(--eco-charcoal);">
+                    ${{ item.product.price|floatformat:2 }}
+                  </div>
+                </div>
+
+                <!-- Controles cantidad + total línea -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                  <div class="quantity-control">
+                    <button class="qty-btn" type="button"
+                            data-action="decrease" data-product-id="{{ item.product.pk }}">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <input class="qty-input" type="number"
+                           value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}"
+                           data-product-id="{{ item.product.pk }}">
+                    <button class="qty-btn" type="button"
+                            data-action="increase" data-product-id="{{ item.product.pk }}">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-3">
+                    <span class="line-total fw-semibold" data-product-id="{{ item.product.pk }}"
+                          style="color:var(--eco-forest);">
+                      ${{ item.line_total|floatformat:2 }}
+                    </span>
+                    <button class="btn-remove-item btn p-0" data-product-id="{{ item.product.pk }}"
+                            style="color:var(--eco-stone);border:none;background:none;"
+                            title="Eliminar">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Link volver a la tienda -->
+        <div class="mt-4">
+          <a href="{% url 'products:product_list' %}"
+             style="color:var(--eco-sage);font-size:0.875rem;text-decoration:none;">
+            <i class="bi bi-arrow-left me-1"></i>Continuar comprando
+          </a>
+        </div>
+      </div>
+
+      <!-- ── Resumen del pedido ──────────────────────────────────── -->
+      <div class="col-lg-4">
+        <div class="order-summary-card">
+          <h5 style="font-family:var(--font-display);font-size:1.375rem;color:var(--eco-forest);margin-bottom:1.5rem;">
+            Resumen del pedido
+          </h5>
+
+          <div class="summary-row">
+            <span class="text-muted">Subtotal</span>
+            <span id="cart-subtotal">${{ subtotal|floatformat:2 }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="text-muted">IVA (16%)</span>
+            <span id="cart-tax">${{ tax|floatformat:2 }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="text-muted">Envío</span>
+            <span id="cart-shipping">
+              {% if free_shipping %}
+                <span style="color:var(--eco-sage);">Gratis</span>
+              {% else %}
+                ${{ shipping|floatformat:2 }}
+              {% endif %}
+            </span>
+          </div>
+
+          <div class="summary-row summary-total">
+            <span>Total</span>
+            <span id="cart-total">${{ total|floatformat:2 }}</span>
+          </div>
+
+          {% if user.is_authenticated %}
+            <a href="{% url 'orders:checkout' %}" class="btn-eco-primary d-block text-center text-decoration-none mt-4">
+              Proceder al pago <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          {% else %}
+            <a href="{% url 'account_login' %}?next={% url 'orders:checkout' %}"
+               class="btn-eco-primary d-block text-center text-decoration-none mt-4">
+              Iniciar sesión para pagar
+            </a>
+          {% endif %}
+
+          <!-- Métodos de pago -->
+          <div class="text-center mt-3">
+            <small class="text-muted" style="font-size:0.75rem;">
+              Pago seguro con
+            </small>
+            <div class="d-flex justify-content-center gap-2 mt-1">
+              <i class="bi bi-credit-card fs-4" style="color:var(--eco-stone);"></i>
+              <span style="font-size:0.7rem;font-weight:600;letter-spacing:0.1em;color:var(--eco-stone);align-self:center;">
+                MercadoPago
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

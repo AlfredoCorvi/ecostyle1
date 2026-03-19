@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+<div class="container py-5" style="max-width:900px;">
+  <h1 class="eco-section-title mb-4">Finalizar compra</h1>
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="p-4 rounded-3 border">
+        <h5 class="fw-500 mb-4">Dirección de envío</h5>
+        <form method="post">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <button type="submit" class="btn eco-btn-hero-primary w-100 py-3 mt-3">
+            <i class="bi bi-lock me-2"></i>Continuar al pago
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="eco-order-summary p-4 rounded-3 border">
+        <h5 class="fw-500 mb-3">Tu pedido</h5>
+        {% for item in cart.items.all %}
+        <div class="d-flex justify-content-between mb-2 small">
+          <span>{{ item.product.name }} x{{ item.quantity }}</span>
+          <span>${{ item.subtotal|floatformat:0 }}</span>
+        </div>
+        {% endfor %}
+        <hr>
+        <div class="d-flex justify-content-between fw-500">
+          <span>Total</span>
+          <span class="eco-price">${{ cart.subtotal|floatformat:0 }} MXN</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
