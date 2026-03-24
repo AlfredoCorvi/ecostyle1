@@ -17,15 +17,14 @@
 
   2. Crear y activar entorno virtual
        python -m venv .venv
-       source .venv/bin/activate          # Linux / macOS
-       .venv\Scripts\activate             # Windows
+       .venv\Scripts\activate
 
   3. Instalar dependencias
        pip install -r requirements.txt
 
   4. Configurar variables de entorno
        cp .env.example .env
-       # Editar .env con tus valores locales (ver sección 11)
+       # Editar .env con tus valores locales (ver sección 4)
 
   5. Crear la base de datos en PostgreSQL
        createdb ecostyle_db
@@ -90,4 +89,24 @@
   refactor(orders): extraer lógica de totales a OrderService
   test(accounts): agregar tests para RegisterView
 
+
+11. VARIABLES DE ENTORNO (.env)
+--------------------------------------------------------------------------------
+  # Django
+  DJANGO_SECRET_KEY="(qmlm69kmgfvh1zfnhb71742s#@j+(t)xli@6%_4lw=5rokik@"
+  DJANGO_DEBUG=True
+  DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+  DJANGO_SETTINGS_MODULE=config.settings.development
+ 
+  # Base de datos
+  DB_NAME=ecostyle_db
+  DB_USER=postgres
+  DB_PASSWORD=ecostyle
+  DB_HOST=localhost
+  DB_PORT=5432
+ 
+  # MercadoPago
+  MP_ACCESS_TOKEN=APP_USR-...
+  MP_PUBLIC_KEY=APP_USR-...
+ 
 ================================================================================
