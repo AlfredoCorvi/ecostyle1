@@ -12,7 +12,7 @@
   Pasos
   -----
   1. Clonar el repositorio
-       git clone https://github.com/ecostyle/ecostyle-platform.git
+       git clone https://github.com/AlfredoCorvi/ecostyle1.git
        cd ecostyle-platform
 
   2. Crear y activar entorno virtual
