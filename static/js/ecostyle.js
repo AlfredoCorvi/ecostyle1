@@ -39,7 +39,7 @@ document.addEventListener('click', async function(e) {
 
   e.preventDefault();
   const productId = btn.dataset.addToCart;
-  const quantity = parseInt(btn.dataset.quantity || '1');
+  const quantity  = parseInt(btn.dataset.quantity || '1');
 
   btn.disabled = true;
   const originalText = btn.innerHTML;
@@ -61,11 +61,8 @@ document.addEventListener('click', async function(e) {
       // Actualizar badge del carrito
       document.querySelectorAll('.eco-cart-badge').forEach(el => {
         el.textContent = data.cart_total_items;
-        el.style.display = 'flex';
+        el.style.display = data.cart_total_items === 0 ? 'none' : 'flex';
       });
-      if (data.cart_total_items === 0) {
-        document.querySelectorAll('.eco-cart-badge').forEach(el => el.style.display = 'none');
-      }
     } else {
       showToast(data.message || 'No se pudo agregar.', 'error');
     }
@@ -86,22 +83,129 @@ window.addEventListener('scroll', () => {
     : 'none';
 });
 
-// ── Quantity controls en carrito ──────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  document.querySelectorAll('.eco-qty-btn').forEach(btn => {
-    btn.addEventListener('click', async function() {
-      const input = this.closest('.eco-qty-control').querySelector('input');
+// ── Eliminar item del carrito (AJAX) ──────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+
+  document.querySelectorAll('.btn-remove-item').forEach(btn => {
+    btn.addEventListener('click', async function () {
       const productId = this.dataset.product;
-      let qty = parseInt(input.value);
+      const itemRow   = this.closest('.eco-cart-item');
+
+      try {
+        const res = await fetch('/cart/remove/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCsrfToken(),
+          },
+          body: `product_id=${productId}`,
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          // ✅ Eliminar la fila del DOM con animación
+          if (itemRow) {
+            itemRow.style.transition = 'opacity 0.3s ease';
+            itemRow.style.opacity    = '0';
+            setTimeout(() => itemRow.remove(), 300);
+          }
+
+          // Actualizar badge del navbar
+          document.querySelectorAll('.eco-cart-badge').forEach(el => {
+            el.textContent   = data.cart_total_items;
+            el.style.display = data.cart_total_items === 0 ? 'none' : 'flex';
+          });
+
+          // Toast de confirmación
+          showToast('Producto eliminado del carrito.');
+
+          // Si no quedan items, recargar para mostrar carrito vacío
+          if (data.cart_total_items === 0) {
+            setTimeout(() => location.reload(), 400);
+          }
+
+        } else {
+          showToast(data.message || 'No se pudo eliminar.', 'error');
+        }
+
+      } catch (err) {
+        console.error('Error al eliminar:', err);
+        showToast('Error de conexión.', 'error');
+      }
+    });
+  });
+
+});
+
+// ── Quantity controls en carrito ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+
+  document.querySelectorAll('.eco-qty-btn').forEach(btn => {
+    btn.addEventListener('click', async function () {
+      const productId = this.dataset.product;                        // data-product
+      const control   = this.closest('.eco-qty-control');
+      const span      = control.querySelector('.qty-value');         // <span class="qty-value">
+
+      if (!span) return;
+
+      let qty = parseInt(span.textContent.trim(), 10);
+      if (isNaN(qty)) return;
+
       qty += this.dataset.action === 'plus' ? 1 : -1;
       if (qty < 0) return;
 
-      const res = await fetch('/cart/update/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrfToken() },
-        body: `product_id=${productId}&quantity=${qty}`,
-      });
-      if (res.ok) location.reload();
+      try {
+        const res = await fetch('/cart/update/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCsrfToken(),
+          },
+          body: `product_id=${productId}&quantity=${qty}`,
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          if (qty === 0) {
+            location.reload();
+            return;
+          }
+
+          // Actualizar cantidad en el span
+          span.textContent = qty;
+
+          // Actualizar total de línea
+          const lineTotal = document.querySelector(`.line-total[data-product="${productId}"]`);
+          if (lineTotal && data.line_total) {
+            lineTotal.textContent = `$${parseFloat(data.line_total).toFixed(0)} MXN`;
+          }
+
+          // Actualizar resumen
+          const subtotalEl = document.getElementById('cart-subtotal');
+          const totalEl    = document.getElementById('cart-total');
+          if (subtotalEl && data.subtotal) {
+            subtotalEl.textContent = `$${parseFloat(data.subtotal).toFixed(0)} MXN`;
+          }
+          if (totalEl && data.total) {
+            totalEl.textContent = `$${parseFloat(data.total).toFixed(0)} MXN`;
+          }
+
+          // Actualizar badge navbar
+          document.querySelectorAll('.eco-cart-badge').forEach(el => {
+            el.textContent   = data.cart_total_items;
+            el.style.display = data.cart_total_items === 0 ? 'none' : 'flex';
+          });
+
+        } else {
+          showToast(data.message || 'No se pudo actualizar.', 'error');
+        }
+      } catch (err) {
+        console.error('Error en qty update:', err);
+        showToast('Error de conexión.', 'error');
+      }
     });
   });
+
 });

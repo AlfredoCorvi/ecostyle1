@@ -23,7 +23,7 @@
     {% csrf_token %}
     <div class="row g-5">
 
-      <!-- ── Items del carrito ──────────────────────────────────── -->
+      <!-- ── Items del carrito -->
       <div class="col-lg-8">
         <!-- Banner envío gratis -->
         {% if not free_shipping %}
@@ -102,7 +102,7 @@
                   <div class="d-flex align-items-center gap-3">
                     <span class="line-total fw-semibold" data-product-id="{{ item.product.pk }}"
                           style="color:var(--eco-forest);">
-                      ${{ item.line_total|floatformat:2 }}
+                      ${{ item.subtotal|floatformat:2 }}
                     </span>
                     <button class="btn-remove-item btn p-0" data-product-id="{{ item.product.pk }}"
                             style="color:var(--eco-stone);border:none;background:none;"
@@ -125,7 +125,7 @@
         </div>
       </div>
 
-      <!-- ── Resumen del pedido ──────────────────────────────────── -->
+      <!-- Resumen del pedido  -->
       <div class="col-lg-4">
         <div class="order-summary-card">
           <h5 style="font-family:var(--font-display);font-size:1.375rem;color:var(--eco-forest);margin-bottom:1.5rem;">
@@ -167,7 +167,6 @@
             </a>
           {% endif %}
 
-          <!-- Métodos de pago -->
           <div class="text-center mt-3">
             <small class="text-muted" style="font-size:0.75rem;">
               Pago seguro con

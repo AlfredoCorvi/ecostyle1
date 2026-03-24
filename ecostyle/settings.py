@@ -22,7 +22,7 @@ DJANGO_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',       # Requerido por allauth
+    'django.contrib.sites',   # allauth
     'django.contrib.humanize',
 ]
 
@@ -133,7 +133,9 @@ SITE_ID = 1
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_VERIFICATION = 'optional'   # 'mandatory' en producción
+ACCOUNT_EMAIL_VERIFICATION = 'none'   # 'mandatory' en producción
+ACCOUNT_CONFIRM_EMAIL_ON_GET = False  #
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = False  #
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'

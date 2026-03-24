@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cerrar Sesión — EcoStyle{% endblock %}
+
+{% block content %}
+<section class="py-5" style="min-height: 80vh; background: var(--eco-cream);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-5">
+
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+
+          <!-- Ícono -->
+          <div class="mb-3">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
+                 style="width:72px; height:72px; background: var(--eco-green-light, #d8f3dc);">
+              <i class="bi bi-box-arrow-right fs-2" style="color: var(--eco-green-dark);"></i>
+            </div>
+          </div>
+
+          <!-- Título -->
+          <h2 class="fw-bold mb-2" style="color: var(--eco-green-dark);">
+            ¿Cerrar sesión?
+          </h2>
+          <p class="text-muted small mb-4">
+            ¿Estás seguro que deseas salir de tu cuenta EcoStyle?
+          </p>
+
+          <!-- Formulario de logout -->
+          <form method="POST" action="{% url 'account_logout' %}">
+            {% csrf_token %}
+            <div class="d-grid gap-2">
+              <button type="submit"
+                      class="btn eco-btn-primary py-2 rounded-3 fw-semibold">
+                Sí, cerrar sesión
+              </button>
+              <a href="/"
+                 class="btn btn-outline-secondary py-2 rounded-3 fw-semibold">
+                Cancelar
+              </a>
+            </div>
+          </form>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

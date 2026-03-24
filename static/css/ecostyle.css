@@ -1,12 +1,7 @@
-/* ═══════════════════════════════════════════════════════════════
-   EcoStyle - Sistema de diseño principal
-   Paleta: Tierra, Verde selva, Crema cálida
-   Tipografía: Playfair Display + DM Sans
-═══════════════════════════════════════════════════════════════ */
-
 :root {
   --eco-green:       #2D5A27;
   --eco-green-light: #4A8A3F;
+  --eco-green-dark: #1b4332;
   --eco-green-pale:  #EAF3DE;
   --eco-earth:       #8B5E3C;
   --eco-earth-light: #C9956A;

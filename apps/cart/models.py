@@ -54,9 +54,9 @@ class CartItem(models.Model):
 
     class Meta:
         verbose_name = "Item del Carrito"
-        unique_together = [("cart", "product")]  # Sin duplicados por producto
         constraints = [
-            models.CheckConstraint(check=models.Q(quantity__gte=1), name="cartitem_min_qty")
+            models.UniqueConstraint(fields=['cart', 'product'], name='unique_cart_product'),
+            models.CheckConstraint(check=models.Q(quantity__gte=1), name="cartitem_min_qty"),
         ]
 
     def __str__(self):

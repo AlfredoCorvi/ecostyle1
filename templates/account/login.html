@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+{% load allauth account %}
+{% load socialaccount %}
+
+{% block title %}Iniciar Sesión — EcoStyle{% endblock %}
+
+{% block content %}
+<section class="py-5" style="min-height: 80vh; background: var(--eco-cream);">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-5">
+
+        <!-- Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+
+          <!-- Logo / Header -->
+          <div class="text-center mb-4">
+            <img src="{% static 'img/logo.png' %}" alt="EcoStyle" height="48"
+                 onerror="this.style.display='none'">
+            <h2 class="fw-bold mt-2" style="color: var(--eco-green-dark);">Bienvenido</h2>
+            <p class="text-muted small">Inicia sesión en tu cuenta EcoStyle</p>
+          </div>
+
+          <!-- Errores generales -->
+          {% if form.errors %}
+          <div class="alert alert-danger rounded-3 small">
+            Correo o contraseña incorrectos. Intenta de nuevo.
+          </div>
+          {% endif %}
+
+          <!-- Formulario -->
+          <form method="POST" action="{% url 'account_login' %}">
+            {% csrf_token %}
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="id_login" class="form-label fw-semibold small">
+                Correo electrónico
+              </label>
+              <input type="email"
+                     name="login"
+                     id="id_login"
+                     class="form-control rounded-3 {% if form.login.errors %}is-invalid{% endif %}"
+                     placeholder="tu@correo.com"
+                     value="{{ form.login.value|default:'' }}"
+                     autofocus required>
+              {% if form.login.errors %}
+              <div class="invalid-feedback">{{ form.login.errors|join:", " }}</div>
+              {% endif %}
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <label for="id_password" class="form-label fw-semibold small">
+                  Contraseña
+                </label>
+                <a href="{% url 'account_reset_password' %}"
+                   class="small text-decoration-none"
+                   style="color: var(--eco-green);">
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
+              <input type="password"
+                     name="password"
+                     id="id_password"
+                     class="form-control rounded-3 {% if form.password.errors %}is-invalid{% endif %}"
+                     placeholder="••••••••"
+                     required>
+            </div>
+
+            <!-- Recordarme -->
+            <div class="mb-4 form-check">
+              <input type="checkbox" name="remember" id="id_remember"
+                     class="form-check-input">
+              <label for="id_remember" class="form-check-label small text-muted">
+                Mantener sesión iniciada
+              </label>
+            </div>
+
+            <!-- Botón submit -->
+            <button type="submit" class="btn eco-btn-primary w-100 py-2 rounded-3 fw-semibold">
+              Ingresar
+            </button>
+          </form>
+
+          <!-- Divider social login -->
+          {% get_providers as socialaccount_providers %}
+          {% if socialaccount_providers %}
+          <div class="d-flex align-items-center my-4">
+            <hr class="flex-grow-1">
+            <span class="px-3 text-muted small">o continúa con</span>
+            <hr class="flex-grow-1">
+          </div>
+          <div class="d-grid gap-2">
+            {% for provider in socialaccount_providers %}
+            <a href="{% provider_login_url provider.id %}"
+               class="btn btn-outline-secondary rounded-3 d-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-google"></i>
+              Ingresar con {{ provider.name }}
+            </a>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <!-- Link a registro -->
+          <p class="text-center mt-4 mb-0 small text-muted">
+            ¿No tienes cuenta?
+            <a href="{% url 'accounts:register' %}"
+               class="fw-semibold text-decoration-none"
+               style="color: var(--eco-green);">
+              Regístrate gratis
+            </a>
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
