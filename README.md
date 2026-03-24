@@ -6,7 +6,6 @@
   --------------
   · Python 3.14
   · PostgreSQL 15 corriendo localmente
-  · Redis (para Celery, en localhost:6379)
   · Git
   . Crear una carpeta e ingresar a la carpeta para clonar el repo
 
@@ -23,7 +22,6 @@
 
   3. Instalar dependencias
        pip install -r requirements.txt
-       pip install -r requirements-dev.txt   # Solo para desarrollo
 
   4. Configurar variables de entorno
        cp .env.example .env
