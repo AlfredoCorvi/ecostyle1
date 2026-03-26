@@ -24,3 +24,5 @@ django-csp==3.8
 
 # ── Dev tools ─────────────────────────────────────────
 django-debug-toolbar==4.3.0
+
+#hola
