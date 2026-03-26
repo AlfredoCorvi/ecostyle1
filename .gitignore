@@ -15,7 +15,6 @@ media/
 staticfiles/
 
 # Entorno virtual
-.env
 .venv/
 venv/
 env/
