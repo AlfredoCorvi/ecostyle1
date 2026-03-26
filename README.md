@@ -24,4 +24,4 @@ GRANT ALL PRIVILEGES ON DATABASE ecostyle_db TO ecostyle_user;
 python manage.py migrate
 python manage.py createsuperuser  (acuerdate de la contraseña y usuario que pongas)
 
-23
+235
