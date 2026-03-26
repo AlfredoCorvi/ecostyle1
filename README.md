@@ -23,3 +23,5 @@ GRANT ALL PRIVILEGES ON DATABASE ecostyle_db TO ecostyle_user;
 8. Ejecutar los siguientes comandos para crear las migraciones en la base de datos:
 python manage.py migrate
 python manage.py createsuperuser  (acuerdate de la contraseña y usuario que pongas)
+
+23
