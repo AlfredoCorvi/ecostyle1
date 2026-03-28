@@ -692,26 +692,73 @@ h1, h2, h3, .eco-logo, .eco-hero-title, .eco-section-title {
 }
 
 .eco-pillar-card {
-  background: var(--eco-white);
-  border: 1px solid var(--eco-border);
+  background: linear-gradient(
+    135deg,
+    #f5f5dc,   /* crema */
+    #e8f5e9,   /* verde muy suave */
+    #c8e6c9    /* verde claro */
+  );
+
+  border: 1px solid rgba(76, 175, 80, 0.2);
   border-radius: var(--radius-md);
   padding: 1.25rem;
-  transition: var(--transition);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .eco-pillar-card:hover {
-  border-color: var(--eco-green);
-  box-shadow: var(--eco-shadow);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+
+  background: linear-gradient(
+    135deg,
+    #f5f5dc,
+    #dcedc8,
+    #a5d6a7
+  );
+}
+
+.eco-pillar-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.eco-pillar-card:hover::before {
+  left: 100%;
 }
 
 .eco-pillar-icon {
-  width: 40px; height: 40px;
-  background: var(--eco-green-pale);
+  width: 40px; 
+  height: 40px;
+  
+  background: linear-gradient(
+    135deg,
+    #a5d6a7,
+    #4CAF50
+  );
+
   border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--eco-green);
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  
+  color: white;
   font-size: 1.1rem;
   margin-bottom: 0.75rem;
+
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
 }
 
 .eco-pillar-title {
