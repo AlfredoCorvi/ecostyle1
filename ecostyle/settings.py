@@ -42,6 +42,7 @@ LOCAL_APPS = [
     'apps.orders.apps.OrdersConfig',
     'apps.payments.apps.PaymentsConfig',
     'apps.inventory.apps.InventoryConfig',
+    "apps.payments",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -74,7 +75,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Contexto global: carrito siempre disponible en todos los templates
                 'apps.cart.context_processors.cart_context',
             ],
         },
@@ -156,9 +156,10 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER', default='noreply@ecostyle.com')
 
-# ── MercadoPago ───────────────────────────────────────────────────────────────
-MP_ACCESS_TOKEN = config('MP_ACCESS_TOKEN', default='')
-MP_PUBLIC_KEY = config('MP_PUBLIC_KEY', default='')
+# ─── MercadoPago ────────────────────────────────────────────────────────────
+MERCADOPAGO_PUBLIC_KEY = config("MP_PUBLIC_KEY")   
+MERCADOPAGO_ACCESS_TOKEN = config("MP_ACCESS_TOKEN")
+MERCADOPAGO_SANDBOX = config("MP_SANDBOX", default=True)
 
 # ── Clave primaria por defecto ────────────────────────────────────────────────
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
