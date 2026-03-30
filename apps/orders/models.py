@@ -64,6 +64,10 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Orden {self.order_number} - {self.user.email}"
+    
+    @property
+    def is_paid(self):
+        return self.status == self.Status.CONFIRMED
 
 
 class OrderItem(models.Model):
@@ -96,74 +100,3 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity}x {self.product_name} @ ${self.unit_price}"
-class Payment(models.Model):
-    class Status(models.TextChoices):
-        PENDING = "pending", "Pendiente"
-        APPROVED = "approved", "Aprobado"
-        REJECTED = "rejected", "Rechazado"
-        CANCELLED = "cancelled", "Cancelado"
-
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="payments")
-    payment_method = models.CharField(max_length=50)  # card, cash, etc.
-    provider = models.CharField(max_length=50, default="mercadopago")
-    transaction_id = models.CharField(max_length=255, unique=True)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    raw_response = models.JSONField(blank=True, null=True)  # guardar respuesta del gateway
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Pago"
-        verbose_name_plural = "Pagos"
-
-    def __str__(self):
-        return f"Pago {self.transaction_id} - {self.status}"
-    
-    class Shipment(models.Model):
-    class Status(models.TextChoices):
-        PENDING = "pending", "Pendiente"
-        SHIPPED = "shipped", "Enviado"
-        IN_TRANSIT = "in_transit", "En tránsito"
-        DELIVERED = "delivered", "Entregado"
-
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="shipment")
-    carrier = models.CharField(max_length=100)  # DHL, FedEx
-    tracking_number = models.CharField(max_length=100, blank=True)
-    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
-    shipped_at = models.DateTimeField(null=True, blank=True)
-    delivered_at = models.DateTimeField(null=True, blank=True)
-
-    class Meta:
-        verbose_name = "Envío"
-
-    def __str__(self):
-        return f"Envío {self.order.order_number} - {self.status}"
-    
-    class Coupon(models.Model):
-    class DiscountType(models.TextChoices):
-        PERCENT = "percent", "Porcentaje"
-        FIXED = "fixed", "Monto fijo"
-
-    code = models.CharField(max_length=50, unique=True)
-    discount_type = models.CharField(max_length=20, choices=DiscountType.choices)
-    value = models.DecimalField(max_digits=10, decimal_places=2)
-    active = models.BooleanField(default=True)
-    expires_at = models.DateTimeField(null=True, blank=True)
-
-    class Meta:
-        verbose_name = "Cupón"
-        verbose_name_plural = "Cupones"
-
-    def __str__(self):
-        return self.code
-    
-    class OrderStatusHistory(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="status_history")
-    status = models.CharField(max_length=20, choices=Order.Status.choices)
-    changed_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Historial de estado"
-
-    def __str__(self):
-        return f"{self.order.order_number} - {self.status}"
