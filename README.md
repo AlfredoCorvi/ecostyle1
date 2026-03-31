@@ -1,3 +1,18 @@
+EcoStyle — Plataforma de Moda Sostenible
+
+EcoStyle es una plataforma de comercio electrónico especializada en moda sostenible,
+construida con Django 4.2 LTS y PostgreSQL 15, siguiendo una Arquitectura en Capas de tres niveles.
+
+Stack tecnológico
+ 
+| Capa | Tecnología |
+|------|-----------|
+| Backend | Python 3.12 + Django 4.2 LTS |
+| Base de datos | PostgreSQL 15 |
+| Frontend | HTML5 + Bootstrap 5 + CSS + JS |
+| Pagos | MercadoPago |
+| Autenticación social | django-allauth |
+
 Intrucciones para clonar repositorio
 
 REQUISITOS
@@ -9,19 +24,19 @@ PASOS PARA CLONAR Y CONFIGURAR PROYECTO
 3. En tu IDE presiona el comando: ctrl + ñ para abrir la terminal del IDE
 4. En la terminal ejecuta el siguiente comando: git clone https://github.com/AlfredoCorvi/ecostyle1.git
 5. Ejecutar comando: cd ecostyle1
-6. Ejecutar comandos para activar entorno virtual e instalar librerías:\\
-python -m venv venv\\
-venv\Scripts\activate    (esperar a que se active el prefijo venv de color varde antes de ejecutar el sig comando)\\
-pip install -r requirements.txt\\
+6. Ejecutar comandos para activar entorno virtual e instalar librerías:
+python -m venv venv
+venv\Scripts\activate    (esperar a que se active el prefijo venv de color varde antes de ejecutar el sig comando)
+pip install -r requirements.txt
 
-7. Ejecutar los siguientes comandos para inicializar la base de datos \\
-psql -U postgres\\
-CREATE DATABASE ecostyle_db;\\
-CREATE USER ecostyle_user WITH PASSWORD '' \\
-GRANT ALL PRIVILEGES ON DATABASE ecostyle_db TO ecostyle_user;\\
+7. Ejecutar los siguientes comandos para inicializar la base de datos
+psql -U postgres
+CREATE DATABASE ecostyle_db;
+CREATE USER ecostyle_user WITH PASSWORD '' 
+GRANT ALL PRIVILEGES ON DATABASE ecostyle_db TO ecostyle_user;
 
-8. Ejecutar los siguientes comandos para crear las migraciones en la base de datos:\\
-python manage.py migrate\\
-python manage.py createsuperuser  (acuerdate de la contraseña y usuario que pongas)\\
+8. Ejecutar los siguientes comandos para crear las migraciones en la base de datos:
+python manage.py migrate
+python manage.py createsuperuser  (acuerdate de la contraseña y usuario que pongas)
 
 9. Editar variables de entorno según tus credenciales.
