@@ -1,34 +1,26 @@
-"""
-Capa de Negocio - App: payments
-PaymentService: integracion con MercadoPago.
-"""
-import logging
 import mercadopago
+import logging
 from django.conf import settings
-from django.utils import timezone
-from django.db import transaction
-from .models import Payment
 from apps.orders.models import Order
+from apps.payments.models import Payment
 
 logger = logging.getLogger(__name__)
 
 
 class PaymentService:
-    """Servicio de pago con MercadoPago."""
 
     def __init__(self):
         self.sdk = mercadopago.SDK(settings.MERCADOPAGO_ACCESS_TOKEN)
 
-    def create_preference(self, order):
-        """
-        Crea una preferencia de pago en MercadoPago.
-        Retorna el init_point (URL de pago) y el preference_id.
-        """
+    def create_preference(self, order: Order, request) -> dict:
+
         items = []
-        for item in order.items.all():
+        for item in order.items.select_related("product").all():
             items.append({
                 "id": str(item.product.id),
-                "title": item.product_name,
+                "title": item.product.name,
+                "description": item.product.description[:255] if item.product.description else "",
+                "category_id": "fashion",
                 "quantity": item.quantity,
                 "unit_price": float(item.unit_price),
                 "currency_id": "MXN",
@@ -37,92 +29,71 @@ class PaymentService:
         preference_data = {
             "items": items,
             "payer": {
-                "name": order.shipping_name,
-                "email": order.shipping_email,
+                "name": order.user.first_name,
+                "surname": order.user.last_name,
+                "email": order.user.email,
             },
-            "external_reference": order.order_number,
-            "notification_url": f"{settings.SITE_URL}/payments/webhook/",
             "back_urls": {
-                "success": f"{settings.SITE_URL}/payments/success/",
-                "failure": f"{settings.SITE_URL}/payments/failure/",
-                "pending": f"{settings.SITE_URL}/payments/pending/",
+                "success": f"http://127.0.0.1:8000/payments/success/?order_id={order.id}",
+                "failure": f"http://127.0.0.1:8000/payments/failure/?order_id={order.id}",
+                "pending": f"http://127.0.0.1:8000/payments/pending/?order_id={order.id}",
             },
-            "auto_return": "approved",
+            "external_reference": str(order.id),
+            "statement_descriptor": "ECOSTYLE",
         }
 
+        logger.info(f"Creando preference MP para orden #{order.id}")
         response = self.sdk.preference().create(preference_data)
 
-        if response["status"] != 201:
-            logger.error(f"MercadoPago error: {response}")
-            raise Exception("No se pudo crear la preferencia de pago.")
+        if response["status"] not in [200, 201]:
+            logger.error(f"Error MP al crear preference: {response}")
+            raise Exception(f"MercadoPago error: {response.get('response', {})}")
 
         preference = response["response"]
 
-        # Crear registro de pago en BD
         payment, _ = Payment.objects.update_or_create(
             order=order,
             defaults={
                 "provider": Payment.Provider.MERCADOPAGO,
+                "status": Payment.Status.PENDING,
                 "preference_id": preference["id"],
                 "amount": order.total,
-                "status": Payment.Status.PENDING,
-            }
+            },
         )
+
+        checkout_url = preference.get("sandbox_init_point") or preference["init_point"]
 
         return {
             "preference_id": preference["id"],
-            "init_point": preference["init_point"],
-            "sandbox_init_point": preference.get("sandbox_init_point"),
+            "init_point": checkout_url,
+            "payment": payment,
         }
 
-    @transaction.atomic
-    def process_webhook(self, data):
-        """
-        Procesa notificaciones IPN de MercadoPago.
-        Actualiza el estado del pago y de la orden.
-        """
-        topic = data.get("type")
-        resource_id = data.get("data", {}).get("id")
+    def process_webhook(self, data: dict) -> Payment | None:
+        topic = data.get("type") or data.get("topic")
+        if topic != "payment":
+            return None
 
-        if topic != "payment" or not resource_id:
-            return
+        mp_payment_id = str(data.get("data", {}).get("id") or data.get("id", ""))
+        if not mp_payment_id:
+            return None
 
-        mp_payment = self.sdk.payment().get(resource_id)
-        if mp_payment["status"] != 200:
-            return
+        response = self.sdk.payment().get(mp_payment_id)
+        if response["status"] != 200:
+            logger.error(f"No se pudo obtener pago MP {mp_payment_id}: {response}")
+            return None
 
-        payment_info = mp_payment["response"]
-        order_number = payment_info.get("external_reference")
-        mp_status = payment_info.get("status")
+        mp_data = response["response"]
+        order_id = mp_data.get("external_reference")
+        status = mp_data.get("status", "pending")
 
         try:
-            order = Order.objects.get(order_number=order_number)
-            payment = order.payment
-        except (Order.DoesNotExist, Payment.DoesNotExist):
-            logger.warning(f"Orden no encontrada: {order_number}")
-            return
-
-        # Mapeo de estados MercadoPago -> EcoStyle
-        status_map = {
-            "approved":    (Payment.Status.APPROVED,  Order.Status.CONFIRMED),
-            "rejected":    (Payment.Status.REJECTED,  Order.Status.CANCELLED),
-            "cancelled":   (Payment.Status.CANCELLED, Order.Status.CANCELLED),
-            "refunded":    (Payment.Status.REFUNDED,  Order.Status.REFUNDED),
-            "in_process":  (Payment.Status.PENDING,   Order.Status.PENDING),
-        }
-
-        payment_status, order_status = status_map.get(
-            mp_status, (Payment.Status.PENDING, Order.Status.PENDING)
-        )
-
-        payment.status = payment_status
-        payment.external_id = str(resource_id)
-        payment.raw_response = payment_info
-        if payment_status == Payment.Status.APPROVED:
-            payment.paid_at = timezone.now()
-        payment.save()
-
-        order.status = order_status
-        order.save()
-
-        logger.info(f"Pago actualizado: {order_number} -> {payment_status}")
+            payment = Payment.objects.get(order_id=order_id)
+            payment.status = status
+            payment.mp_payment_id = mp_payment_id
+            payment.save(update_fields=["status", "mp_payment_id", "updated_at"])
+            logger.info(f"Pago #{payment.id} actualizado a '{status}' vía webhook")
+            return payment
+        except Payment.DoesNotExist:
+            logger.error(f"Webhook MP: No existe pago para orden #{order_id}")
+            return None

@@ -146,3 +146,57 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.product.name} ({self.rating}/5)"
+    
+   
+class Brand(models.Model):
+    name = models.CharField("Nombre", max_length=100, unique=True)
+    slug = models.SlugField(unique=True, blank=True)
+    is_active = models.BooleanField("Activo", default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Marca"
+        verbose_name_plural = "Marcas"
+        ordering = ["name"]
+
+    def save(self, *args, **kwargs):
+        from django.utils.text import slugify
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+    name = models.CharField("Nombre", max_length=50, unique=True)
+
+    class Meta:
+        verbose_name = "Etiqueta"
+        verbose_name_plural = "Etiquetas"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(
+        "Product",
+        on_delete=models.CASCADE,
+        related_name="variants"
+    )
+    name = models.CharField("Nombre variante", max_length=100)  # Ej: "Rojo - M"
+    price = models.DecimalField("Precio", max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField("Stock", default=0)
+    is_active = models.BooleanField("Activo", default=True)
+
+    class Meta:
+        verbose_name = "Variante de Producto"
+        verbose_name_plural = "Variantes de Producto"
+        ordering = ["product", "name"]
+        
+
+    def __str__(self):
+        return f"{self.product.name} - {self.name}"

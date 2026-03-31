@@ -64,6 +64,10 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Orden {self.order_number} - {self.user.email}"
+    
+    @property
+    def is_paid(self):
+        return self.status == self.Status.CONFIRMED
 
 
 class OrderItem(models.Model):

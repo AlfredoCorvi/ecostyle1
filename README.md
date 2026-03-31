@@ -17,11 +17,12 @@ pip install -r requirements.txt
 7. Ejecutar los siguientes comandos para inicializar la base de datos 
 psql -U postgres
 CREATE DATABASE ecostyle_db;
-CREATE USER ecostyle_user WITH PASSWORD 'ecostyle'
+CREATE USER ecostyle_user WITH PASSWORD '
+'
 GRANT ALL PRIVILEGES ON DATABASE ecostyle_db TO ecostyle_user;
 
 8. Ejecutar los siguientes comandos para crear las migraciones en la base de datos:
 python manage.py migrate
 python manage.py createsuperuser  (acuerdate de la contraseña y usuario que pongas)
 
-23
+235
