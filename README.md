@@ -40,3 +40,5 @@ python manage.py migrate
 python manage.py createsuperuser  (acuerdate de la contraseña y usuario que pongas)
 
 9. Editar variables de entorno según tus credenciales.
+
+10. Levantar servidor con el comando: python manage.py runserver
