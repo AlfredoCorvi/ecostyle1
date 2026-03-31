@@ -18,6 +18,8 @@ staticfiles/
 .venv/
 venv/
 env/
+.env
+.env/
 
 # IDEs
 .idea/
